@@ -2,11 +2,10 @@ import os
 import streams
 import strutils
 import sequtils
-import typetraits
 
 const invalidChars = AllChars - Letters
 
-proc exactlyCountLetter(str: string, c: char, count: int): bool = str.count(c) == count
+proc hasExactlyCount(str: string, c: char, count: int): bool = str.count(c) == count
 
 when isMainModule:
   let
@@ -29,10 +28,27 @@ when isMainModule:
   for input in inputs:
     var iter = toSeq(input.items)
 
-    if any(iter, proc(c: char): bool = exactlyCountLetter(input, c, 2)):
-      doubleOccurrences = doubleOccurrences + 1
+    if any(iter, proc(c: char): bool = hasExactlyCount(input, c, 2)):
+      inc doubleOccurrences
 
-    if any(iter, proc(c: char): bool = exactlyCountLetter(input, c, 3)):
-      tripleOccurrences = tripleOccurrences + 1
+    if any(iter, proc(c: char): bool = hasExactlyCount(input, c, 3)):
+      inc tripleOccurrences
 
-  echo doubleOccurrences, ' ', tripleOccurrences
+  echo "Double occurrences: ", doubleOccurrences
+  echo "Triple occurrences: ", tripleOccurrences
+
+  var
+    found = false
+    commmonChars = newSeq[char]()
+
+  for input in inputs:
+    if found:
+      break
+    for str in inputs:
+      if editDistance(str, input) == 1:
+        found = true
+        for i in 0..str.high:
+          if str[i] == input[i]:
+            commmonChars.add(str[i])
+
+  echo "Common letters: ", cast[string](commmonChars)
